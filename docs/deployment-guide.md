@@ -30,9 +30,11 @@ Install FRR on your target server:
 
 **Ubuntu/Debian:**
 ```bash
+# Add FRR GPG key
+curl -s https://deb.frrouting.org/frr/keys.asc | gpg --dearmor | sudo tee /usr/share/keyrings/frrouting.gpg > /dev/null
+
 # Add FRR repository
-curl -s https://deb.frrouting.org/frr/keys.asc | sudo apt-key add -
-echo deb https://deb.frrouting.org/frr $(lsb_release -s -c) frr-stable | sudo tee -a /etc/apt/sources.list.d/frr.list
+echo "deb [signed-by=/usr/share/keyrings/frrouting.gpg] https://deb.frrouting.org/frr $(lsb_release -s -c) frr-stable" | sudo tee -a /etc/apt/sources.list.d/frr.list
 
 # Install FRR
 sudo apt update
@@ -67,11 +69,14 @@ sudo systemctl start frr
 
 ### 3. SSH Key Setup
 
-Generate an SSH key pair for GitHub Actions:
+Generate an SSH key pair for GitHub Actions (using modern Ed25519 for better security):
 
 ```bash
-# On your local machine
-ssh-keygen -t rsa -b 4096 -f ~/.ssh/github_actions_key -N ""
+# On your local machine - recommended: Ed25519 key
+ssh-keygen -t ed25519 -f ~/.ssh/github_actions_key -N ""
+
+# Alternative: RSA 4096 (if Ed25519 is not supported)
+# ssh-keygen -t rsa -b 4096 -f ~/.ssh/github_actions_key -N ""
 
 # Copy the public key to your server
 ssh-copy-id -i ~/.ssh/github_actions_key.pub user@your-server.com

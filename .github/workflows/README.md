@@ -112,10 +112,12 @@ bgp-config-fix/
 #### Security Considerations
 
 - The SSH private key is stored as a GitHub Secret and never exposed in logs
+- The private key is created with secure permissions (600) using `install` command
 - The private key is removed from the runner after the workflow completes
 - Configuration backups are created before any changes are applied
-- The workflow uses `StrictHostKeyChecking=no` only after adding the host to known_hosts
+- Host keys are verified using ssh-keyscan (no StrictHostKeyChecking bypass)
 - All FRR configuration files are set with appropriate permissions (640) and ownership (frr:frr)
+- Workflow uses explicit minimal permissions (contents: read)
 
 #### Troubleshooting
 

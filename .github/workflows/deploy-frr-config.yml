@@ -34,30 +34,31 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          install -m 600 /dev/null ~/.ssh/id_rsa
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
           echo "SSH key configured successfully"
       
       - name: Test SSH connection
         run: |
           echo "Testing SSH connection to server..."
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "echo 'SSH connection successful' && uname -a"
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "echo 'SSH connection successful' && uname -a"
       
       - name: Copy configuration files to server
         run: |
           echo "Copying configuration files to server..."
-          scp -o StrictHostKeyChecking=no configs/frr/bgpd.conf ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/bgpd.conf
-          scp -o StrictHostKeyChecking=no configs/frr/zebra.conf ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/zebra.conf
+          scp configs/frr/bgpd.conf ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/bgpd.conf
+          scp configs/frr/zebra.conf ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/zebra.conf
           echo "Configuration files copied successfully"
       
       - name: Copy scripts to server
         run: |
           echo "Copying validation and analysis scripts to server..."
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p /tmp/frr-scripts"
-          scp -o StrictHostKeyChecking=no scripts/validate_bgp_config.py ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/frr-scripts/
-          scp -o StrictHostKeyChecking=no scripts/analyze_frr_config.py ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/frr-scripts/
-          scp -o StrictHostKeyChecking=no scripts/fix_bgp_config.sh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/frr-scripts/
+          scp scripts/validate_bgp_config.py ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/frr-scripts/
+          scp scripts/analyze_frr_config.py ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/frr-scripts/
+          scp scripts/fix_bgp_config.sh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/frr-scripts/
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "chmod +x /tmp/frr-scripts/fix_bgp_config.sh"
           echo "Scripts copied successfully"
       
