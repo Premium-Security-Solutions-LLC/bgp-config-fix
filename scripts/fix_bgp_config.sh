@@ -87,6 +87,7 @@ fix_missing_router_id() {
     if ! grep -q "bgp router-id" "$config_file"; then
         log_warn "Missing BGP router-id"
         log_warn "Router-ID should be manually configured using a loopback interface IP"
+        log_warn "Example: bgp router-id 10.0.0.1 (where 10.0.0.1 is your loopback IP)"
         log_warn "Automated router-id configuration skipped - please configure manually"
         # Note: We don't auto-generate router-id as it should be a stable, unique loopback IP
         # not a neighbor IP. This should be configured manually by the administrator.
