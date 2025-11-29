@@ -52,8 +52,15 @@ sudo systemctl start frr
 **CentOS/RHEL:**
 ```bash
 # Add FRR repository
+# For CentOS/RHEL 8:
 curl -O https://rpm.frrouting.org/repo/frr-stable-repo-1-0.el8.noarch.rpm
 sudo dnf install frr-stable-repo-1-0.el8.noarch.rpm -y
+
+# For CentOS/RHEL 9:
+# curl -O https://rpm.frrouting.org/repo/frr-stable-repo-1-0.el9.noarch.rpm
+# sudo dnf install frr-stable-repo-1-0.el9.noarch.rpm -y
+
+# For other versions, see: https://rpm.frrouting.org/
 
 # Install FRR
 sudo dnf install frr frr-pythontools -y

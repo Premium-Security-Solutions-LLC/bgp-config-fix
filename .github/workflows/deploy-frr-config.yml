@@ -170,12 +170,16 @@ jobs:
           echo ""
           echo "Testing connectivity to configured BGP peers..."
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
-            # Extract peer IPs from bgpd.conf and test connectivity
-            PEERS=\$(grep 'neighbor.*remote-as' /tmp/bgpd.conf | awk '{print \$2}' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$')
-            for peer in \$PEERS; do
-              echo \"Testing connectivity to peer \$peer...\"
-              ping -c 2 -W 2 \$peer || echo \"Peer \$peer not reachable (may be expected)\"
-            done
+            # Extract peer IPs from deployed bgpd.conf and test connectivity
+            PEERS=\$(grep 'neighbor.*remote-as' /etc/frr/bgpd.conf 2>/dev/null | awk '{print \$2}' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' || echo '')
+            if [ -z \"\$PEERS\" ]; then
+              echo 'No BGP peers configured'
+            else
+              for peer in \$PEERS; do
+                echo \"Testing connectivity to peer \$peer...\"
+                ping -c 2 -W 2 \$peer || echo \"Peer \$peer not reachable (may be expected)\"
+              done
+            fi
           "
           echo "::endgroup::"
       
