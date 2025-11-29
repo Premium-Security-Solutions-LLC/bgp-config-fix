@@ -39,7 +39,23 @@ Apply automated fixes (with backup):
 scripts/fix_bgp_config.sh --backup --validate configs/frr/bgpd.conf
 ```
 
-## Step 5: Use with GitHub Copilot
+## Step 5: Deploy to Production (Optional)
+
+Deploy configurations to your Linux server using GitHub Actions:
+
+1. **Configure Secrets** (one-time setup):
+   - Go to repository Settings → Secrets and variables → Actions
+   - Add `SERVER_HOST`, `SERVER_USER`, and `SSH_PRIVATE_KEY`
+
+2. **Run Deployment**:
+   - Go to Actions tab → "Deploy FRR Configuration"
+   - Click "Run workflow"
+   - Select deployment options
+   - Monitor the deployment progress
+
+See [Deployment Guide](docs/deployment-guide.md) for detailed instructions.
+
+## Step 6: Use with GitHub Copilot
 
 Now you're ready to use GitHub Copilot! Try these prompts:
 
@@ -88,9 +104,16 @@ Now you're ready to use GitHub Copilot! Try these prompts:
 
 ## Next Steps
 
+### Local Development
 1. Read the full [Copilot Guide](docs/copilot-guide.md)
 2. Review [Common Routing Issues](configs/examples/routing-issues.md)
 3. Study [Neighbor Configuration Examples](configs/examples/neighbor-configs.md)
+
+### Production Deployment
+1. Read the [Deployment Guide](docs/deployment-guide.md)
+2. Set up GitHub Secrets (SERVER_HOST, SERVER_USER, SSH_PRIVATE_KEY)
+3. Run the deployment workflow from GitHub Actions
+4. Monitor BGP sessions and route propagation
 
 ## Tips
 

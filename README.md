@@ -10,11 +10,16 @@ Enable GitHub Copilot to effectively:
 - Generate neighbor configurations
 - Validate and fix BGP configuration problems
 - Provide automation scripts for configuration management
+- **Deploy configurations to production servers via GitHub Actions**
 
 ## Repository Structure
 
 ```
 bgp-config-fix/
+├── .github/
+│   └── workflows/
+│       ├── deploy-frr-config.yml # Automated deployment workflow
+│       └── README.md             # Workflow documentation
 ├── configs/
 │   ├── frr/                      # Sample FRR configurations
 │   │   ├── bgpd.conf            # BGP daemon configuration
@@ -27,7 +32,8 @@ bgp-config-fix/
 │   ├── analyze_frr_config.py    # Configuration analyzer
 │   └── fix_bgp_config.sh        # Automated fix script
 ├── docs/
-│   └── copilot-guide.md         # Guide for using GitHub Copilot
+│   ├── copilot-guide.md         # Guide for using GitHub Copilot
+│   └── deployment-guide.md      # Deployment guide for GitHub Actions
 └── README.md                     # This file
 ```
 
@@ -68,25 +74,58 @@ bgp-config-fix/
   - Missing address-family activations
   - Missing soft-reconfiguration
 
+### 5. Automated Deployment
+- **GitHub Actions Workflow**: Deploy configurations to production servers:
+  - SSH connection with secure credential management
+  - Configuration validation and analysis
+  - Automated fix application
+  - FRR service restart
+  - BGP neighbor verification
+  - Connectivity and route propagation checks
+
 ## Quick Start
 
-### Validate a Configuration
+### Local Usage
+
+#### Validate a Configuration
 
 ```bash
 python scripts/validate_bgp_config.py configs/frr/bgpd.conf
 ```
 
-### Analyze Configurations
+#### Analyze Configurations
 
 ```bash
 python scripts/analyze_frr_config.py configs/frr/bgpd.conf configs/frr/zebra.conf
 ```
 
-### Apply Automated Fixes
+#### Apply Automated Fixes
 
 ```bash
 scripts/fix_bgp_config.sh --backup --validate configs/frr/bgpd.conf
 ```
+
+### Automated Deployment to Production
+
+Deploy FRR configurations to your Linux server using GitHub Actions:
+
+1. **Configure GitHub Secrets**:
+   - `SERVER_HOST`: Your server hostname or IP
+   - `SERVER_USER`: SSH username
+   - `SSH_PRIVATE_KEY`: SSH private key for authentication
+
+2. **Run the Workflow**:
+   - Go to Actions tab → "Deploy FRR Configuration"
+   - Click "Run workflow"
+   - Select options (apply fixes, restart services)
+   - Monitor the deployment logs
+
+3. **Verify Deployment**:
+   - Check BGP neighbor status
+   - Verify route propagation
+   - Review connectivity tests
+
+See the [Deployment Guide](docs/deployment-guide.md) for detailed instructions.
 
 ## Using with GitHub Copilot
 
@@ -156,6 +195,8 @@ See [configs/examples/routing-issues.md](configs/examples/routing-issues.md) for
 
 ## Documentation
 
+- [Deployment Guide](docs/deployment-guide.md) - Complete guide for automated deployment via GitHub Actions
+- [Workflow Documentation](.github/workflows/README.md) - GitHub Actions workflow details
 - [Copilot Usage Guide](docs/copilot-guide.md) - Comprehensive guide for using GitHub Copilot with this repository
 - [Neighbor Configurations](configs/examples/neighbor-configs.md) - Examples of various neighbor configurations
 - [Routing Issues](configs/examples/routing-issues.md) - Common routing problems and their solutions
