@@ -179,8 +179,23 @@ jobs:
         run: |
           echo "::group::Route Propagation Check"
           echo "Verifying route propagation..."
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "sudo vtysh -c 'show ip bgp neighbors advertised-routes' || echo 'Advertised routes not available yet'"
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "sudo vtysh -c 'show ip bgp neighbors received-routes' || echo 'Received routes not available yet'"
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
+            # Extract peer IPs from bgpd.conf
+            PEERS=\$(grep 'neighbor.*remote-as' /etc/frr/bgpd.conf 2>/dev/null | awk '{print \$2}' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' || echo '')
+            if [ -z \"\$PEERS\" ]; then
+              echo 'No BGP peers configured yet'
+            else
+              for peer in \$PEERS; do
+                echo \"\"
+                echo \"Checking routes for peer \$peer...\"
+                echo \"Advertised routes to \$peer:\"
+                sudo vtysh -c \"show ip bgp neighbors \$peer advertised-routes\" 2>/dev/null || echo \"Not available yet\"
+                echo \"\"
+                echo \"Received routes from \$peer:\"
+                sudo vtysh -c \"show ip bgp neighbors \$peer routes\" 2>/dev/null || echo \"Not available yet\"
+              done
+            fi
+          "
           echo "::endgroup::"
       
       - name: Generate deployment report
