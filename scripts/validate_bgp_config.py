@@ -62,11 +62,14 @@ class BGPConfigValidator:
             self.errors.append("No 'router bgp' configuration found")
 
     def extract_neighbors(self) -> None:
-        """Extract neighbor configurations"""
+        """Extract neighbor configurations
+        Note: Currently only matches IPv4 addresses. IPv6 and hostname-based neighbors not yet supported.
+        """
         for line_num, line in enumerate(self.config_lines, 1):
             line = line.strip()
 
-            # Match neighbor configuration
+            # Match neighbor configuration (IPv4 only)
+            # TODO: Add support for IPv6 addresses and hostnames
             neighbor_match = re.match(r'neighbor\s+([\d.]+)\s+remote-as\s+(\d+)', line)
             if neighbor_match:
                 neighbor_ip = neighbor_match.group(1)
@@ -165,7 +168,10 @@ class BGPConfigValidator:
                     )
 
     def validate_bogon_filters(self) -> None:
-        """Check if bogon filtering is implemented"""
+        """Check if bogon filtering is implemented
+        Note: This is a basic check that only verifies the presence of bogon-related configuration.
+        It does not validate that the filters are correctly defined or properly applied.
+        """
         has_bogon_filter = any('BOGON' in line.upper() for line in self.config_lines)
         if not has_bogon_filter:
             self.warnings.append(

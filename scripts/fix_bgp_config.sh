@@ -86,15 +86,10 @@ fix_missing_router_id() {
     # Check if router-id is missing
     if ! grep -q "bgp router-id" "$config_file"; then
         log_warn "Missing BGP router-id"
-        
-        # Try to extract first neighbor IP as a default
-        local default_id=$(grep -m 1 "neighbor.*remote-as" "$config_file" | awk '{print $2}')
-        
-        if [ -n "$default_id" ]; then
-            log_info "Adding default router-id: $default_id"
-            # Insert after 'router bgp' line
-            sed -i "/^router bgp/a \ bgp router-id $default_id" "$config_file"
-        fi
+        log_warn "Router-ID should be manually configured using a loopback interface IP"
+        log_warn "Automated router-id configuration skipped - please configure manually"
+        # Note: We don't auto-generate router-id as it should be a stable, unique loopback IP
+        # not a neighbor IP. This should be configured manually by the administrator.
     fi
 }
 
@@ -104,15 +99,17 @@ fix_missing_descriptions() {
     
     log_info "Checking for neighbors without descriptions..."
     
-    # Extract all neighbor IPs
+    # Extract all neighbor IPs (IPv4 only)
     local neighbors=$(grep "neighbor.*remote-as" "$config_file" | awk '{print $2}' | sort -u)
     
     for neighbor in $neighbors; do
         # Check if description exists for this neighbor
         if ! grep -q "neighbor $neighbor description" "$config_file"; then
-            log_info "Adding description for neighbor $neighbor"
+            # Get the AS number for this neighbor
+            local remote_as=$(grep "neighbor $neighbor remote-as" "$config_file" | awk '{print $4}' | head -1)
+            log_info "Adding description for neighbor $neighbor (AS $remote_as)"
             # Add description after the remote-as line
-            sed -i "/neighbor $neighbor remote-as/a\ neighbor $neighbor description Auto-generated-description" "$config_file"
+            sed -i "/neighbor $neighbor remote-as/a\ neighbor $neighbor description Peer-AS-$remote_as" "$config_file"
         fi
     done
 }
@@ -152,9 +149,11 @@ fix_missing_activation() {
 add_soft_reconfiguration() {
     local config_file="$1"
     
-    log_info "Adding soft-reconfiguration for eBGP peers..."
+    log_info "Adding soft-reconfiguration for peers..."
+    log_warn "Note: Soft-reconfiguration increases memory usage. Use judiciously."
     
     # This is a simplified approach - in reality you'd need to identify eBGP vs iBGP
+    # and only apply to eBGP peers or where frequent policy changes occur
     local neighbors=$(grep "neighbor.*remote-as" "$config_file" | awk '{print $2}' | sort -u)
     
     for neighbor in $neighbors; do
