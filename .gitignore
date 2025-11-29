@@ -1,0 +1,28 @@
+# Generic .gitignore for common files
+
+# Ignore Node.js dependencies
+node_modules/
+
+# Ignore build output
+/dist
+
+# Ignore logs
+logs/
+*.log
+
+# Ignore environment configuration
+.env
+
+# Ignore coverage reports
+coverage/
+
+# Ignore macOS specific files
+.DS_Store
+
+# Ignore IDE configurations
+.vscode/
+.idea/
+*.swp
+
+# Ignore temporary files
+*.tmp
